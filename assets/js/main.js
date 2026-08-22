@@ -1,300 +1,279 @@
 (function ($) {
   "use strict";
 
-  function OtherJs() {
-    /*========== Preloader ==========*/
-    $(window).on("load", () => {
-      $("#preloader").fadeOut(500);
-    });
+  // Configuration constants
+  const SWIPER_CONFIG = {
+    testimonial: {
+      slidesPerView: 2,
+      spaceBetween: 25,
+      loop: true,
+      speed: 1000,
+      autoplayDelay: 5000,
+      paginationEl: ".pagination__dot",
+      breakpoints: {
+        1601: { slidesPerView: 2 },
+        1200: { slidesPerView: 2 },
+        768: { slidesPerView: 2 },
+        767: { slidesPerView: 1 },
+        320: { slidesPerView: 1 }
+      }
+    },
+    project: {
+      slidesPerView: 3,
+      spaceBetween: 25,
+      loop: true,
+      speed: 1000,
+      autoplayDelay: 5000,
+      breakpoints: {
+        1601: { slidesPerView: 3 },
+        1600: { slidesPerView: 2 },
+        1200: { slidesPerView: 3 },
+        1199: { slidesPerView: 3 },
+        700: { slidesPerView: 2.5 },
+        650: { slidesPerView: 2 },
+        480: { slidesPerView: 2 },
+        320: { slidesPerView: 1 }
+      }
+    }
+  };
 
-    $(document).ready(function ($) {
-      /* ========= Swiper Slider =========== */
+  const PAGE_TITLES = {
+    'index': 'خانه',
+    'about': 'درباره ما',
+    'blog-details': 'جزییات بلاگ',
+    'blog': 'بلاگ',
+    'contact': 'تماس با ما',
+    'education': 'تحصیلات',
+    'portfolio-details': 'جزییات نمونه کار',
+    'portfolio': 'نمونه کار',
+    'pricing': 'قیمت گذاری',
+    'service': 'خدمات'
+  };
+
+  const ANIMATION_DURATION = 0.2;
+  const PRELOADER_FADE_DURATION = 500;
+
+  /**
+   * Initialize Swiper sliders
+   */
+  function initSwiperSliders() {
+    const createSlider = (selector, config) => {
       try {
-        new Swiper(".cm-testimonial", {
-          slidesPerView: 2,
-          spaceBetween: 25,
-          loop: true,
+        new Swiper(selector, {
+          slidesPerView: config.slidesPerView,
+          spaceBetween: config.spaceBetween,
+          loop: config.loop,
           dots: true,
-          speed: 1000,
+          speed: config.speed,
           autoplay: {
-            delay: 5000,
-            disableOnInteraction: false,
+            delay: config.autoplayDelay,
+            disableOnInteraction: false
           },
           pagination: {
-            el: ".pagination__dot",
-            clickable: true,
+            el: config.paginationEl || ".swiper-pagination",
+            clickable: true
           },
-          breakpoints: {
-            1601: {
-              slidesPerView: 2,
-            },
-            1600: {
-              slidesPerView: 2,
-            },
-            1200: {
-              slidesPerView: 2,
-            },
-            768: {
-              slidesPerView: 2,
-            },
-            767: {
-              slidesPerView: 1,
-            },
-            320: {
-              slidesPerView: 1,
-            }
-          },
+          breakpoints: config.breakpoints
         });
       } catch (error) {
-        console.log('swiper js not loade')
+        console.warn(`Swiper slider failed to initialize for ${selector}`);
       }
-      // project slider
-      try {
-        new Swiper(".project-slider", {
-          slidesPerView: 3,
-          loop: true,
-          dots: true,
-          speed: 1000,
-          spaceBetween: 25,
-          autoplay: {
-            delay: 5000,
-            disableOnInteraction: false,
-          },
-          breakpoints: {
-            1601: {
-              slidesPerView: 3,
-            },
-            1600: {
-              slidesPerView: 2,
-            },
-            1200: {
-              slidesPerView: 3,
-            },
-            1199: {
-              slidesPerView: 3,
-            },
-            700: {
-              slidesPerView: 2.5,
-            },
-            650: {
-              slidesPerView: 2,
-            },
-            480: {
-              slidesPerView: 2,
-            },
-            320: {
-              slidesPerView: 1,
-            }
-          },
-        });
-      } catch (error) {
-        console.log('swiper js not loade')
-      }
+    };
 
-      /*============ offcanvase Menu =========*/
-      try {
-        $(".cm-menu-overlay, .cm-close-icon, .light-mode, .dark-mode, .cm-menu ul li a.link").on("click", function () {
-          $(".cm-offcanvase").removeClass("cm-active");
-          $(".cm-menu-inner").removeClass("cm-active");
-        }
-        );
-        $("#offcanvase, .offcanvase").on("click", function () {
-          $(".cm-menu-inner").addClass("cm-active");
-          $(".cm-offcanvase").addClass("cm-active");
-        });
-      } catch (error) {
-        console.log("offcanvase Menu Not loaded");
-      }
-      /*=========== MENU ACTIVE LINK ==========*/
-      document.addEventListener("DOMContentLoaded", function () {
-        const currentPath = window.location.pathname;
-        const links = document.querySelectorAll('tab-action-item link');
+    createSlider(".cm-testimonial", SWIPER_CONFIG.testimonial);
+    createSlider(".project-slider", SWIPER_CONFIG.project);
+  }
 
-        links.forEach(function (link) {
-          const linkPath = link.getAttribute('href');
-          if (linkPath === currentPath) {
-            link.classList.add('active');
-          }
-          console.log(links)
-        });
+  /**
+   * Initialize offcanvas menu
+   */
+  function initOffcanvasMenu() {
+    try {
+      const toggleElements = ".cm-menu-overlay, .cm-close-icon, .light-mode, .dark-mode, .cm-menu ul li a.link";
+      const openElements = "#offcanvase, .offcanvase";
+
+      $(toggleElements).on("click", () => {
+        $(".cm-offcanvase").removeClass("cm-active");
+        $(".cm-menu-inner").removeClass("cm-active");
       });
 
-      /*=========== SVG INJECT =========*/
-      try {
-        SVGInject(document.querySelectorAll("img.svg"));
-      } catch (error) {
-        console.log("svginject not working")
+      $(openElements).on("click", () => {
+        $(".cm-menu-inner").addClass("cm-active");
+        $(".cm-offcanvase").addClass("cm-active");
+      });
+    } catch (error) {
+      console.warn("Offcanvas menu failed to initialize");
+    }
+  }
+
+  /**
+   * Set active navigation link based on current page
+   */
+  function setActiveNavLink() {
+    const currentPath = window.location.pathname;
+    const links = document.querySelectorAll('.link');
+    
+    links.forEach(link => {
+      if (link.href.includes(currentPath)) {
+        link.classList.add('active');
       }
-
     });
+  }
 
-    // dark
-    $(document).ready(function () {
-      var rts_light = $('.mode-switcher');
-      if (rts_light.length) {
-        var toggle = $('#theme-mode, #theme-mode-2');
-        var storedTheme = localStorage.getItem('axz-portfolio') || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-        if (storedTheme) {
-          $('html').attr('data-theme', storedTheme);
-        }
-        toggle.click(function () {
-          var currentTheme = $('html').attr('data-theme');
-          var targetTheme = (currentTheme === "light") ? "dark" : "light";
+  /**
+   * Initialize SVG injection
+   */
+  function initSvgInject() {
+    try {
+      SVGInject(document.querySelectorAll("img.svg"));
+    } catch (error) {
+      console.warn("SVG injection failed to initialize");
+    }
+  }
+
+  /**
+   * Initialize theme switcher (dark/light mode)
+   */
+  function initThemeSwitcher() {
+    const themeSwitcher = $('.mode-switcher');
+    if (!themeSwitcher.length) return;
+
+    const toggle = $('#theme-mode, #theme-mode-2');
+    const storedTheme = localStorage.getItem('axz-portfolio') || 
+      (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    
+    $('html').attr('data-theme', storedTheme);
+
+    toggle.on("click", function () {
+      const currentTheme = $('html').attr('data-theme');
+      const targetTheme = currentTheme === "light" ? "dark" : "light";
+
+      gsap.to('body', {
+        opacity: 0,
+        duration: ANIMATION_DURATION,
+        ease: "power1.out",
+        onComplete: () => {
+          $('html').attr('data-theme', targetTheme);
+          localStorage.setItem('axz-portfolio', targetTheme);
           gsap.to('body', {
-            opacity: 0,
-            duration: 0.2,
-            ease: "power1.out",
-            onComplete: function () {
-              $('html').attr('data-theme', targetTheme);
-              localStorage.setItem('axz-portfolio', targetTheme);
-              gsap.to('body', {
-                opacity: 1,
-                duration: 0.2,
-                ease: "power1.out",
-              });
-            }
+            opacity: 1,
+            duration: ANIMATION_DURATION,
+            ease: "power1.out"
           });
-        });
-      }
-    });
-
-    // onepage nav
-    $(document).ready(function () {
-      const navClass = document.querySelectorAll('.link');
-      const currentLocation = window.location.pathname;
-      navClass.forEach(currentLink => {
-        if (currentLink.href.includes(currentLocation)) {
-          currentLink.classList.add('active');
         }
-      })
-    })
-
-  }
-
-  // delay function
-  function delay(n) {
-    n = n || 2000;
-    return new Promise(done => {
-      setTimeout(() => {
-        done();
-      }, n);
+      });
     });
   }
 
-  // gsap page animation
-  function anim() {
-    let tl = gsap.timeline();
-    tl.to(".animation__screen", {
+  /**
+   * Initialize preloader
+   */
+  function initPreloader() {
+    $(window).on("load", () => {
+      $("#preloader").fadeOut(PRELOADER_FADE_DURATION);
+    });
+  }
+
+  /**
+   * Main initialization function for other JS components
+   */
+  function initOtherComponents() {
+    initPreloader();
+    initSwiperSliders();
+    initOffcanvasMenu();
+    setActiveNavLink();
+    initSvgInject();
+    initThemeSwitcher();
+  }
+
+  /**
+   * Delay utility function
+   */
+  function delay(ms = 2000) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  /**
+   * Get page title translation
+   */
+  function getPageTitle(namespace) {
+    return PAGE_TITLES[namespace] || namespace;
+  }
+
+  /**
+   * GSAP animation for page transitions
+   */
+  function runPageAnimation() {
+    const timeline = gsap.timeline();
+    
+    timeline.to(".animation__screen", {
       duration: 1,
       width: "100%",
       left: "0%",
       ease: "Expo.easeInOut",
-      // onComplete: function(){
-      //   let path = window.location.pathname;
-      //   let segments = path.split('/'); 
-      //   let lastSegment = segments.pop(); 
-      //   let namespace = lastSegment.replace(/\.html$/, ''); 
-      //   // if (namespace === 'index') { namespace === 'خانه'}
-      //   document.querySelector('.animation__screen').innerText = namespace;
-      // }
-      onComplete: function () {
-        let path = window.location.pathname;
-        let segments = path.split('/');
-        let lastSegment = segments.pop();
-        let namespace = lastSegment.replace(/\.html$/, '');
-
-        let farsiTranslation = '';
-
-        switch (namespace) {
-          case 'index':
-            farsiTranslation = 'خانه';
-            break;
-          case 'about':
-            farsiTranslation = 'درباره ما';
-            break;
-          case 'blog-details':
-            farsiTranslation = 'جزییات بلاگ';
-            break;
-          case 'blog':
-            farsiTranslation = 'بلاگ';
-            break;
-          case 'contact':
-            farsiTranslation = 'تماس با ما';
-            break;
-          case 'education':
-            farsiTranslation = 'تحصیلات';
-            break;
-          case 'portfolio-details':
-            farsiTranslation = ' جزییات نمونه کار';
-            break;
-          case 'portfolio':
-            farsiTranslation = 'نمونه کار';
-            break;
-          case 'pricing':
-            farsiTranslation = 'قیمت گذاری';
-            break;
-          case 'service':
-            farsiTranslation = 'خدمات';
-            break;
-
-          default:
-            farsiTranslation = namespace; // Default to namespace if translation not found
-            break;
-        }
-
-        document.querySelector('.animation__screen').innerText = farsiTranslation;
+      onComplete: () => {
+        const path = window.location.pathname;
+        const namespace = path.split('/').pop().replace(/\.html$/, '');
+        const title = getPageTitle(namespace);
+        document.querySelector('.animation__screen').innerText = title;
       }
-
     });
-    tl.to(".animation__screen", {
+
+    timeline.to(".animation__screen", {
       duration: 1,
       width: "100%",
       left: "100%",
       ease: "Expo.easeInOut",
-      delay: 0.5,
+      delay: 0.5
     });
-    tl.set(".animation__screen", {
+
+    timeline.set(".animation__screen", {
       left: "-100%"
     });
   }
 
-  function textAnimate() {
-    let tl = gsap.timeline();
-    tl.from("h1.main-title", {
+  /**
+   * Animate main title text
+   */
+  function animateMainTitle() {
+    gsap.from("h1.main-title", {
       duration: 1.3,
       y: 30,
       opacity: 0,
       stagger: 0.4,
-      delay: 0.2,
-    })
+      delay: 0.2
+    });
   }
 
-  // animation
-  function barbaAnim() {
+  /**
+   * Initialize Barba.js for page transitions
+   */
+  function initBarba() {
     barba.init({
       sync: true,
       transitions: [{
         async leave(data) {
           const done = this.async();
-          anim();
+          runPageAnimation();
           await delay(1000);
           done();
         },
         async enter(data) {
-          textAnimate();
+          animateMainTitle();
         },
         async once(data) {
-          textAnimate();
+          animateMainTitle();
         }
       }]
     });
+
     barba.hooks.after(() => {
-      OtherJs();
+      initOtherComponents();
     });
   }
-  // run barba
-  barbaAnim();
-  OtherJs();
+
+  // Initialize application
+  initBarba();
+  initOtherComponents();
 
 })(jQuery);
-
